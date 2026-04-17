@@ -1,5 +1,5 @@
 #include "auton_selector.hpp"
-#include "liblvgl/lvgl.h"
+#include "liblvgl/core/lv_obj_pos.h"
 
 // 實例化全域變數
 AutonSelector auton_selector;
