@@ -1,6 +1,7 @@
 #include "main.h"
-#include "Systems.hpp"
 #include "Auton.hpp"
+#include "Systems.hpp"
+#include "auton_selector.hpp"
 #include "lemlib/api.hpp"
 #include "lemlib/chassis/odom.hpp"
 
@@ -11,13 +12,13 @@
  * "I was pressed!" and nothing.
  */
 void on_center_button() {
-	static bool pressed = false;
-	pressed = !pressed;
-	if (pressed) {
-		pros::lcd::set_text(2, "I was pressed!");
-	} else {
-		pros::lcd::clear_line(2);
-	}
+  static bool pressed = false;
+  pressed = !pressed;
+  if (pressed) {
+    pros::lcd::set_text(2, "I was pressed!");
+  } else {
+    pros::lcd::clear_line(2);
+  }
 }
 
 /**
@@ -27,15 +28,18 @@ void on_center_button() {
  * to keep execution time for this mode under a few seconds.
  */
 void initialize() {
-    pros::lcd::initialize();
+  pros::lcd::initialize();
 
-    chassis.calibrate();
+  chassis.calibrate();
 
-	pros::delay(2000); // Delay for a second to allow the IMU to calibrate
+  pros::delay(2000); // Delay for a second to allow the IMU to calibrate
 
-	master.rumble(!PROS_ERR ? "." : "---");
+  auton_selector.autons_add({{"this is just an example", example},
+                             {"Full AWP Red Side", full_awp_route}});
 
-    pros::lcd::register_btn1_cb(on_center_button);
+  master.rumble(!PROS_ERR ? "." : "---");
+
+  pros::lcd::register_btn1_cb(on_center_button);
 }
 
 /**
@@ -56,7 +60,6 @@ void disabled() {}
  */
 void competition_initialize() {}
 
-
 /**
  * Runs the user autonomous code. This function will be started in its own task
  * with the default priority and stack size whenever the robot is enabled via
@@ -69,15 +72,24 @@ void competition_initialize() {}
  * from where it left off.
  */
 void autonomous() {
-	chassis.setPose(0, 0, 0);
-	lemlib::init();
-	horizontal.reset();
-	vertical.reset();
-	chassis.setBrakeMode(pros::E_MOTOR_BRAKE_HOLD);
-	//run the example auton
-	example();
+  chassis.setPose(0, 0, 0);
+  lemlib::init();
+  horizontal.reset();
+  vertical.reset();
+  chassis.setBrakeMode(pros::E_MOTOR_BRAKE_HOLD);
+  // run the choosen auton
+  auton_selector.run_selected();
 }
 
+void extras() {
+  // Only run this when not connected to a competition switch
+  if (!pros::competition::is_connected()) {
+
+    // Trigger the selected autonomous routine
+    if (master.get_digital(pros::E_CONTROLLER_DIGITAL_X) && master.get_digital(pros::E_CONTROLLER_DIGITAL_UP))
+      autonomous();
+  }
+}
 /**
  * Runs the operator control code. This function will be started in its own task
  * with the default priority and stack size whenever the robot is enabled via
@@ -94,16 +106,17 @@ void autonomous() {
 
 void opcontrol() {
 
-	chassis.setBrakeMode(pros::E_MOTOR_BRAKE_COAST);
-	while (true) {
-		// get left y and right y positions
-        int leftY = master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
-        int rightY = master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_Y);
+  chassis.setBrakeMode(pros::E_MOTOR_BRAKE_COAST);
+  while (true) {
+    extras();
+    // get left y and right y positions
+    int leftY = master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
+    int rightY = master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_Y);
 
-        // move the robot
-        chassis.tank(leftY, rightY);
+    // move the robot
+    chassis.tank(leftY, rightY);
 
-        // delay to save resources
-        pros::delay(20);
-    }
+    // delay to save resources
+    pros::delay(20);
+  }
 }
