@@ -34,8 +34,8 @@ void initialize() {
 
   pros::delay(2000); // Delay for a second to allow the IMU to calibrate
 
-  auton_selector.autons_add({{"this is just an example", example},
-                             {"Full AWP Red Side", full_awp_route}});
+  auton_selector.autons_add(
+      {{"this is just an example", example}, {"Full AWP Red Side", awp}});
 
   master.rumble(!PROS_ERR ? "." : "---");
 
@@ -86,7 +86,8 @@ void extras() {
   if (!pros::competition::is_connected()) {
 
     // Trigger the selected autonomous routine
-    if (master.get_digital(pros::E_CONTROLLER_DIGITAL_X) && master.get_digital(pros::E_CONTROLLER_DIGITAL_UP))
+    if (master.get_digital(pros::E_CONTROLLER_DIGITAL_X) &&
+        master.get_digital(pros::E_CONTROLLER_DIGITAL_UP))
       autonomous();
   }
 }

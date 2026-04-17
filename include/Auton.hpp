@@ -6,9 +6,7 @@ extern "C" {
 
 // Declare your auton functions here
 void example();
-void full_awp_route();
-
-
+void awp();
 
 #ifdef __cplusplus
 }
