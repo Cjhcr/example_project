@@ -1,5 +1,7 @@
 #pragma once
 #include "main.h" // 包含 PROS 與 LVGL
+#include "liblvgl/lvgl.h"
+#include <cstdint>
 #include <string>
 #include <vector>
 

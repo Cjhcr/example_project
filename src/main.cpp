@@ -35,7 +35,8 @@ void initialize() {
   pros::delay(2000); // Delay for a second to allow the IMU to calibrate
 
   auton_selector.autons_add(
-      {{"this is just an example", example}, {"Full AWP Red Side", awp}});
+      {{"an example", example},
+	   {"awp example", awp}});
 
   master.rumble(!PROS_ERR ? "." : "---");
 
