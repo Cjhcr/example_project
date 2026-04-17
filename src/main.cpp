@@ -77,6 +77,7 @@ void autonomous() {
   horizontal.reset();
   vertical.reset();
   chassis.setBrakeMode(pros::E_MOTOR_BRAKE_HOLD);
+
   // run the choosen auton
   auton_selector.run_selected();
 }
